@@ -38,4 +38,15 @@ else
 fi
 
 echo ""
+echo "== Optional: validate installed research pack tools (if present) =="
+RESEARCH_TOOLS="$HOME/.clawdbot/tools/youtube-search-api"
+if [[ -d "$RESEARCH_TOOLS" ]]; then
+  echo "Found youtube-search-api tool installed in ~/.clawdbot/tools"
+  node "$HOME/.clawdbot/tools/youtube-search-api/tool.js" --query "openclaw" >/tmp/youtube-search-api.validate.json 2>/dev/null || true
+  echo "Wrote /tmp/youtube-search-api.validate.json (may be error if key not set)"
+else
+  echo "(research pack tools not installed; ok)"
+fi
+
+echo ""
 echo "VALIDATION_OK"
