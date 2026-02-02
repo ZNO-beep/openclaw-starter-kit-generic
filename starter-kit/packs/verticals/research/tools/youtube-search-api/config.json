@@ -1,0 +1,18 @@
+{
+  "apiKeyEnv": "GOOGLE_API_KEY",
+  "baseUrl": "https://www.googleapis.com/youtube/v3",
+  "part": "snippet",
+  "defaultType": "video",
+
+  "defaultMaxResults": 25,
+  "maxMaxResults": 25,
+
+  "defaultPages": 2,
+  "maxPages": 10,
+
+  "defaultMaxTotal": 50,
+  "maxMaxTotal": 500,
+
+  "defaultOrder": "date",
+  "defaultSafeSearch": "none"
+}

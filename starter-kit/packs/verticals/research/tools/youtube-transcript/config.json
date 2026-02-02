@@ -1,0 +1,8 @@
+{
+  "baseUrl": "https://api.supadata.ai/v1",
+  "apiKeyEnv": "SUPADATA_API_KEY",
+  "endpoint": "/transcript",
+  "jobEndpoint": "/transcript/{jobId}",
+  "defaultMode": "auto",
+  "notes": "Uses Supadata to fetch transcripts; mode=auto tries existing captions and can generate when unavailable."
+}

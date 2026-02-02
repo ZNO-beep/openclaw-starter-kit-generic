@@ -1,0 +1,7 @@
+{
+  "binary": "yt-dlp",
+  "defaultSubtitleLangs": ["en"],
+  "defaultWriteAutoSubs": true,
+  "defaultSkipDownload": true,
+  "notes": "Use yt-dlp primarily for metadata and subtitles/captions (download disabled by default)."
+}
