@@ -1,0 +1,14 @@
+{
+  "testedWith": {
+    "clawdbot": "2026.1.24-3",
+    "node": ">=20"
+  },
+  "skills": {
+    "playwright-skill": {
+      "source": "git",
+      "repo": "https://github.com/lackeyjb/playwright-skill",
+      "ref": "main",
+      "install": "npm run setup"
+    }
+  }
+}

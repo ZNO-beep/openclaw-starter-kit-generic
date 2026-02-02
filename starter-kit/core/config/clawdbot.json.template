@@ -1,0 +1,57 @@
+{
+  "auth": {
+    "profiles": {
+      "openai:default": {
+        "provider": "openai",
+        "mode": "api_key"
+      },
+      "openai-codex:default": {
+        "provider": "openai-codex",
+        "mode": "oauth"
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "claude-cli/opus-4.5",
+        "fallbacks": [
+          "openai-codex/gpt-5.2",
+          "openai/gpt-4o-mini"
+        ]
+      },
+      "workspace": "${CLAWD_WORKSPACE:-~/clawd}",
+      "cliBackends": {
+        "claude-cli": {
+          "command": "/opt/homebrew/bin/claude"
+        }
+      }
+    },
+    "list": [
+      {
+        "id": "main"
+      },
+      {
+        "id": "opus",
+        "name": "Opus",
+        "model": "claude-cli/opus-4.5"
+      },
+      {
+        "id": "coding",
+        "name": "Coding",
+        "model": "openai-codex/gpt-5.2"
+      }
+    ]
+  },
+  "tools": {
+    "web": {
+      "search": {
+        "apiKey": "${BRAVE_SEARCH_API_KEY}"
+      }
+    }
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto"
+  }
+}

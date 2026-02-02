@@ -1,0 +1,12 @@
+# OS
+.DS_Store
+
+# Runtime state
+.env
+
+# Playwright artifacts
+playwright/runs/
+starter-kit/core/playwright/runs/
+
+# Temp
+/tmp/
