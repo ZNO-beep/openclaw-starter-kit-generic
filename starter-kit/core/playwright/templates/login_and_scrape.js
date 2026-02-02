@@ -7,10 +7,15 @@ const { hitl } = require('../hitl');
 const { hitlNav } = require('../hitl_nav');
 const { detectAuthContext } = require('../auth_detect');
 
+const { waitForSuccessCue } = require('../success_cue');
+
 const LOGIN_URL = process.env.LOGIN_URL;
 const TARGET_URL = process.env.TARGET_URL;
 const USERNAME = process.env.USERNAME;
 const PASSWORD = process.env.PASSWORD;
+
+const SUCCESS_CUE_TEXT = process.env.SUCCESS_CUE_TEXT;
+const SUCCESS_CUE_URL_INCLUDES = process.env.SUCCESS_CUE_URL_INCLUDES;
 
 if (!LOGIN_URL || !TARGET_URL || !USERNAME || !PASSWORD) {
   console.error('Missing required env vars: LOGIN_URL, TARGET_URL, USERNAME, PASSWORD');
@@ -100,6 +105,22 @@ async function goto(page, url) {
 
     await page.waitForTimeout(3000);
     await screenshot(page, 'post-login');
+
+    // Optional success cue check (user-provided)
+    if (SUCCESS_CUE_TEXT || SUCCESS_CUE_URL_INCLUDES) {
+      const cue = {
+        textContains: SUCCESS_CUE_TEXT || undefined,
+        urlIncludes: SUCCESS_CUE_URL_INCLUDES || undefined,
+      };
+      const cueRes = await waitForSuccessCue(page, cue, { timeoutMs: 60000 });
+      if (!cueRes.ok) {
+        await hitl(page, {
+          step: 'login',
+          reason: 'Login completed but success cue was not observed. Reply with the correct login URL and a success cue text/URL fragment.',
+        });
+      }
+    }
+
     console.log('2) Navigate + scrape');
     try {
       await goto(page, TARGET_URL);
