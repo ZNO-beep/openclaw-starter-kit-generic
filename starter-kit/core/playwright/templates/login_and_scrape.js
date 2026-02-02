@@ -5,6 +5,7 @@
 const { chromium } = require('playwright');
 const { hitl } = require('../hitl');
 const { hitlNav } = require('../hitl_nav');
+const { detectAuthContext } = require('../auth_detect');
 
 const LOGIN_URL = process.env.LOGIN_URL;
 const TARGET_URL = process.env.TARGET_URL;
@@ -46,6 +47,15 @@ async function goto(page, url) {
     console.log('1) Login');
     await goto(page, LOGIN_URL);
     await screenshot(page, 'login');
+
+    // Detect OAuth/SSO redirects early (common with Google/social login)
+    const authCtx = detectAuthContext(page.url());
+    if (authCtx.kind === 'google_oauth' || authCtx.kind === 'oauth_or_sso') {
+      await hitl(page, {
+        step: 'login',
+        reason: `Detected ${authCtx.kind} flow (redirected to ${page.url()}). Reply with the correct login URL, target content URL, and whether to use Google/social sign-on.`,
+      });
+    }
 
     // Scope user field to the form containing the password input (more robust)
     const pw = page.locator('input[type="password"]').first();
