@@ -17,6 +17,9 @@ const PASSWORD = process.env.PASSWORD;
 const SUCCESS_CUE_TEXT = process.env.SUCCESS_CUE_TEXT;
 const SUCCESS_CUE_URL_INCLUDES = process.env.SUCCESS_CUE_URL_INCLUDES;
 
+const TARGET_CUE_TEXT = process.env.TARGET_CUE_TEXT;
+const TARGET_CUE_URL_INCLUDES = process.env.TARGET_CUE_URL_INCLUDES;
+
 if (!LOGIN_URL || !TARGET_URL || !USERNAME || !PASSWORD) {
   console.error('Missing required env vars: LOGIN_URL, TARGET_URL, USERNAME, PASSWORD');
   // If we have a browser page later, we can HITL; but at this stage fail fast.
@@ -129,6 +132,21 @@ async function goto(page, url) {
       throw e;
     }
     await screenshot(page, 'target');
+
+    // Optional target readiness cue check (user-provided)
+    if (TARGET_CUE_TEXT || TARGET_CUE_URL_INCLUDES) {
+      const cue = {
+        textContains: TARGET_CUE_TEXT || undefined,
+        urlIncludes: TARGET_CUE_URL_INCLUDES || undefined,
+      };
+      const cueRes = await waitForSuccessCue(page, cue, { timeoutMs: 60000 });
+      if (!cueRes.ok) {
+        await hitlNav(page, {
+          step: 'navigate',
+          reason: 'Target page loaded but target success cue was not observed. Reply with the correct target URL and a target cue text/URL fragment.',
+        });
+      }
+    }
 
     // Basic paywall/overlay heuristic (customize per site record)
     const bodyText = await page.locator('body').innerText().catch(() => '');
