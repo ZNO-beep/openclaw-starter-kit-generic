@@ -4,6 +4,7 @@
 
 const { chromium } = require('playwright');
 const { hitl } = require('../hitl');
+const { hitlNav } = require('../hitl_nav');
 
 const LOGIN_URL = process.env.LOGIN_URL;
 const TARGET_URL = process.env.TARGET_URL;
@@ -89,10 +90,24 @@ async function goto(page, url) {
 
     await page.waitForTimeout(3000);
     await screenshot(page, 'post-login');
-
     console.log('2) Navigate + scrape');
-    await goto(page, TARGET_URL);
+    try {
+      await goto(page, TARGET_URL);
+    } catch (e) {
+      await hitlNav(page, { step: "navigate", reason: "Navigation to target URL failed (slow site, redirect, or auth gate). Provide correct target URL." });
+      throw e;
+    }
     await screenshot(page, 'target');
+
+    // Basic paywall/overlay heuristic (customize per site record)
+    const bodyText = await page.locator('body').innerText().catch(() => '');
+    const paywallHit = /subscribe to unlock|unlock access|subscribe now/i.test(bodyText || '');
+    if (paywallHit) {
+      await hitlNav(page, {
+        step: 'extract',
+        reason: 'Target page appears paywalled/blocked after navigation. Need the correct post-login content URL and/or login URL.',
+      });
+    }
 
     const text = (await page.locator('main').first().innerText().catch(async () => page.locator('body').innerText()))
       .replace(/\n{3,}/g, '\n\n')
