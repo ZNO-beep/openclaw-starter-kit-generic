@@ -15,6 +15,14 @@ This repository is a **public-ish starter kit** intended to be copied and custom
 ## How secrets are handled
 All secrets must be provided via local environment (`~/.clawdbot/.env`) or a secrets manager.
 
+### Recommended local workflow
+Use the included helper to safely prompt and write secrets locally (no chat pasting):
+
+```bash
+bash starter-kit/core/scripts/set_secret.sh BRAVE_SEARCH_API_KEY
+bash starter-kit/core/scripts/set_secret.sh SPOTGAMMA_USERNAME SPOTGAMMA_PASSWORD
+```
+
 If you discover a secret committed here:
 1) rotate the secret immediately
 2) remove it from git history (rewrite)
