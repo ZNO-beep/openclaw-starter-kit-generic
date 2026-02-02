@@ -3,6 +3,7 @@
 //   LOGIN_URL, TARGET_URL, USERNAME, PASSWORD
 
 const { chromium } = require('playwright');
+const { hitl } = require('../hitl');
 
 const LOGIN_URL = process.env.LOGIN_URL;
 const TARGET_URL = process.env.TARGET_URL;
@@ -11,6 +12,7 @@ const PASSWORD = process.env.PASSWORD;
 
 if (!LOGIN_URL || !TARGET_URL || !USERNAME || !PASSWORD) {
   console.error('Missing required env vars: LOGIN_URL, TARGET_URL, USERNAME, PASSWORD');
+  // If we have a browser page later, we can HITL; but at this stage fail fast.
   process.exit(2);
 }
 
@@ -46,11 +48,27 @@ async function goto(page, url) {
 
     // Scope user field to the form containing the password input (more robust)
     const pw = page.locator('input[type="password"]').first();
-    await pw.waitFor({ state: 'visible', timeout: 60000 });
+    try {
+      await pw.waitFor({ state: 'visible', timeout: 60000 });
+    } catch (e) {
+      await hitl(page, {
+        step: 'login',
+        reason: 'Password field not found/visible at login URL. Need correct login URL or login method details.',
+      });
+      throw e;
+    }
     const form = pw.locator('xpath=ancestor::form[1]');
 
     const user = form.locator('input[type="email"], input[name="email"], input[name="username"], input[autocomplete="username"], input[type="text"]').first();
-    await user.waitFor({ state: 'visible', timeout: 60000 });
+    try {
+      await user.waitFor({ state: 'visible', timeout: 60000 });
+    } catch (e) {
+      await hitl(page, {
+        step: 'login',
+        reason: 'Username/email field not found/visible on login form. Need correct login URL or auth method.',
+      });
+      throw e;
+    }
 
     await user.fill(USERNAME);
     await page.waitForTimeout(500);
@@ -58,7 +76,15 @@ async function goto(page, url) {
     await page.waitForTimeout(500);
 
     const submit = form.locator('button[type="submit"], input[type="submit"], button:has-text("Log in"), button:has-text("Login"), button:has-text("Sign in")').first();
-    await submit.waitFor({ state: 'visible', timeout: 60000 });
+    try {
+      await submit.waitFor({ state: 'visible', timeout: 60000 });
+    } catch (e) {
+      await hitl(page, {
+        step: 'login',
+        reason: 'Submit button not found/visible on login form. Need login method/flow guidance.',
+      });
+      throw e;
+    }
     await submit.click();
 
     await page.waitForTimeout(3000);
